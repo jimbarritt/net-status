@@ -9,5 +9,6 @@
                  [org.clojure/tools.cli "1.0.219"]]
   :repl-options {:init-ns net-status.core}
   :main net-status.core
+  :aot [net-status.core]
   :profiles {:uberjar {:aot :all}})
  

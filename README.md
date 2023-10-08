@@ -6,6 +6,8 @@ This can then be used to create an observation log of internet up-time. I made t
 
 The idea is to deploy to a raspberry pi.
 
+See this for how to install as a service https://github.com/ixcode/tekdoc/blob/master/publisher/init-d-definition.sh
+
 ## Setting up the pi
 
 
