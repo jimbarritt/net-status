@@ -1,6 +1,27 @@
 # net-status
 
-A Clojure library designed to ... well, that part is up to you.
+A simple command line app which just polls a url to check wether there is an internet connection. 
+
+This can then be used to create an observation log of internet up-time. I made this because we were experiencing intermittent internet drops in our home broadband and I wanted to be able to monitor it.
+
+The idea is to deploy to a raspberry pi.
+
+## Setting up the pi
+
+
+https://www.raspberrypi.com/software/
+
+https://www.tomshardware.com/reviews/raspberry-pi-headless-setup-how-to,6028.html
+
+Use the setup utility and can configure the pi to be headless and ssh-able
+
+Configuring Wifi:
+
+sudo vim /etc/wpa_supplicant/wpa_supplicant.conf
+
+Will tell you if the wifi is up
+
+ifconfig wlan0
 
 ## Usage
 

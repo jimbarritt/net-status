@@ -5,7 +5,9 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [clj-http "3.12.3"]
-                 [org.clojure/core.async "1.6.681"]]
+                 [org.clojure/core.async "1.6.681"]
+                 [org.clojure/tools.cli "1.0.219"]]
   :repl-options {:init-ns net-status.core}
-  :main net-status.core)
+  :main net-status.core
+  :profiles {:uberjar {:aot :all}})
  
