@@ -18,6 +18,9 @@ upload-ssh-key:
 package:
 	lein uberjar
 
+list-network:
+	arp -a
+
 ssh:
 	ssh ${SITE_USERNAME}@${SITE_HOSTNAME}
 
