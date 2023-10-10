@@ -6,7 +6,9 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [clj-http "3.12.3"]
                  [org.clojure/core.async "1.6.681"]
-                 [org.clojure/tools.cli "1.0.219"]]
+                 [org.clojure/tools.cli "1.0.219"]
+                 [clj-commons/fs "1.6.307"]
+                 [clj-commons/clj-yaml "1.0.27"]]
   :repl-options {:init-ns net-status.core}
   :main net-status.core
   :aot [net-status.core]

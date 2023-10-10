@@ -3,7 +3,9 @@
   (:require [clj-http.client :as client]
             [clojure.java.io :as io]
             [clojure.core.async :as async]
-            [clojure.tools.cli :refer [parse-opts]]))
+            [clojure.tools.cli :refer [parse-opts]]
+            [me.raynes.fs :as fs]
+            [clj-yaml.core :as yaml]))
 
 (def cli-options
   ;; An option with a required argument
@@ -71,6 +73,30 @@
       (log-message log-file url (str "Status [" recorded-status "] to [" actual-status "]")))
     (update-site-status site-key actual-status)))
 
+(defn process-config
+  "Loads a config file and registers the sites"
+  [config-file]
+  (let [config (yaml/parse-string (slurp config-file))
+        sites (:sites config)]
+    (doseq [site sites]
+      (let [{:keys [name url]} site]
+      (println "Registering Site: " name " - " url)
+      (register-site (keyword name) url)))))
+
+(defn register-default-site
+  "Registers the default to be google"
+  []
+  (register-site :google "https://www.google.com")
+  (println "Using default google config"))
+
+(defn configure-sites
+  "Loads the sites to configure from a config file in ~/.config/net-status.config If theres no file, defaults to google"
+  []
+  (let [config-file (fs/expand-home "~/.config/net-status/net-status.conf")]
+    (if (fs/exists? config-file)
+      (process-config config-file)
+      (register-default-site))))
+
 (defn -main
   "Sets up a polling every 1 second to a url to check the internet status"
   [& args]
@@ -78,8 +104,10 @@
         logfile (:logfile options)]
     (println "Going to start polling every second now CTRL-C to stop, logs in [" logfile "]")
     (.mkdirs (.getParentFile (io/file logfile)))
-    (register-site :google "https://www.google.com")
+    (configure-sites)
     (while true
-      (poll-site :google logfile)
+      (doseq [key (keys @status-store)]
+              (poll-site key logfile))
+;;      (poll-site :google logfile)
       (Thread/sleep 1000))))
 
