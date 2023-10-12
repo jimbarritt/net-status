@@ -2,10 +2,10 @@
   (:gen-class)
   (:require [clj-http.client :as client]
             [clojure.java.io :as io]
-            [clojure.core.async :as async]
             [clojure.tools.cli :refer [parse-opts]]
             [me.raynes.fs :as fs]
-            [clj-yaml.core :as yaml]))
+            [clj-yaml.core :as yaml]
+            [overtone.at-at :as at]))
 
 (def cli-options
   ;; An option with a required argument
@@ -15,11 +15,15 @@
    ])
 
 (def status-store (atom {}))
+(def schedule-pool (at/mk-pool))
 
 (defn register-site
   "Adds a url as a site to the status atom"
-  [site-key url]
-  (swap! status-store assoc site-key {:url url :status :unknown}))
+  [site-key url poll-interval timeout]
+  (swap! status-store assoc site-key {:url url
+                                      :status :unknown
+                                      :poll-interval poll-interval
+                                      :timeout timeout}))
 
 (defn update-site-status
   "Updates the status of a site"
@@ -35,6 +39,11 @@
   "Returns the URL for the site"
   [site-key]
   (get-in @status-store [site-key :url]))
+
+(defn get-poll-interval
+  [site-key]
+  (get-in @status-store [site-key :poll-interval])
+  )
 
 
 (defn log-message
@@ -79,14 +88,14 @@
   (let [config (yaml/parse-string (slurp config-file))
         sites (:sites config)]
     (doseq [site sites]
-      (let [{:keys [name url]} site]
+      (let [{:keys [name url poll-interval timeout]} site]
       (println "Registering Site: " name " - " url)
-      (register-site (keyword name) url)))))
+      (register-site (keyword name) url poll-interval timeout)))))
 
 (defn register-default-site
   "Registers the default to be google"
   []
-  (register-site :google "https://www.google.com")
+  (register-site :google "https://www.google.com" 2000 2000)
   (println "Using default google config"))
 
 (defn configure-sites
@@ -97,6 +106,7 @@
       (process-config config-file)
       (register-default-site))))
 
+
 (defn -main
   "Sets up a polling every 1 second to a url to check the internet status"
   [& args]
@@ -105,9 +115,9 @@
     (println "Going to start polling every second now CTRL-C to stop, logs in [" logfile "]")
     (.mkdirs (.getParentFile (io/file logfile)))
     (configure-sites)
-    (while true
-      (doseq [key (keys @status-store)]
-              (poll-site key logfile))
-;;      (poll-site :google logfile)
-      (Thread/sleep 1000))))
+    (doseq [site-key (keys @status-store)]
+      (let [poll-interval (get-poll-interval site-key)]
+        (at/interspaced poll-interval #(poll-site site-key logfile) schedule-pool)))
+    (while true                                             ;; Just wait
+      )))
 

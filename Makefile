@@ -17,6 +17,7 @@ upload-ssh-key:
 
 package:
 	lein uberjar
+	cp ops/run-server.sh target
 
 list-network:
 	arp -a
@@ -30,4 +31,7 @@ ssh-debug:
 
 publish: package
 	$(info Going to sftp the files up to the server: username [${SITE_USERNAME}], hostname [${SITE_HOSTNAME}])
-	scp ./target/net-status-0.1.0-SNAPSHOT-standalone.jar ${SITE_USERNAME}@${SITE_HOSTNAME}:~
+	ssh ${SITE_USERNAME}@${SITE_HOSTNAME} 'mkdir -p ~/net-status'
+	scp ./target/net-status-0.1.0-SNAPSHOT-standalone.jar ${SITE_USERNAME}@${SITE_HOSTNAME}:~/net-status/
+	scp ./target/run-server.sh ${SITE_USERNAME}@${SITE_HOSTNAME}:~/net-status/
+

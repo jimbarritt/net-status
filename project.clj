@@ -8,7 +8,8 @@
                  [org.clojure/core.async "1.6.681"]
                  [org.clojure/tools.cli "1.0.219"]
                  [clj-commons/fs "1.6.307"]
-                 [clj-commons/clj-yaml "1.0.27"]]
+                 [clj-commons/clj-yaml "1.0.27"]
+                 [overtone/at-at "1.2.0"]]
   :repl-options {:init-ns net-status.core}
   :main net-status.core
   :aot [net-status.core]

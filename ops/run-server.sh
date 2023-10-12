@@ -2,12 +2,12 @@
 set -e
 SERVICE_NAME=net-status
 
-PID_PATH=./target
+PID_PATH=.
 
 RUN_AS=$(whoami)
-PATH_TO_JAR=./target/net-status-0.1.0-SNAPSHOT-standalone.jar
+PATH_TO_JAR=./net-status-0.1.0-SNAPSHOT-standalone.jar
 PID_PATH_NAME=${PID_PATH}/${SERVICE_NAME}.pid
-LOG_DIR=./target/logs
+LOG_DIR=./logs
 
 
 mkdir -p ${LOG_DIR}
