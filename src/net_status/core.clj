@@ -45,6 +45,11 @@
   (get-in @status-store [site-key :poll-interval])
   )
 
+(defn get-site-timeout
+  [site-key]
+  (get-in @status-store [site-key :timeout])
+  )
+
 
 (defn log-message
   [log-file url message]
@@ -56,11 +61,11 @@
 ;; You can add {:debug true} to the /head call to see what its actually passing
 (defn test-status
   "Makes a HEAD call to a URL and returns a status based on the result or if theres a network error"
-  [url]
+  [url timeout]
   (try 
     (let [response (client/head url {:throw-exceptions false
-                                     :socket-timeout 900
-                                     :connection-timeout 900
+                                     :socket-timeout timeout
+                                     :connection-timeout timeout
                                      :headers {:content-length 0} ;; Some serversd are a bit fussy about this e.g. Brother Printer
                                      :retry-handler (fn [ex try-count http-context] false)})]
       (if (= 200 (:status response))
@@ -72,11 +77,14 @@
     ))
 
 
+
+
 (defn poll-site
   [site-key log-file]
   (let [url (get-site-url site-key)
         recorded-status (get-site-status site-key)
-        actual-status (test-status url)]   
+        timeout (get-site-timeout site-key)
+        actual-status (test-status url timeout)]
 
     (if (not (= actual-status recorded-status))
       (log-message log-file url (str "Status [" recorded-status "] to [" actual-status "]")))
