@@ -76,9 +76,6 @@
       :site-down)
     ))
 
-
-
-
 (defn poll-site
   [site-key log-file]
   (let [url (get-site-url site-key)
