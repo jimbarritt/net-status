@@ -10,8 +10,7 @@
 (def cli-options
   ;; An option with a required argument
   [["-l" "--logfile FILENAME" "Log file path"
-    :default "logs/net-status.log"]
-   
+    :default "logs/net-status.log"]   
    ])
 
 (def status-store (atom {}))
@@ -42,21 +41,16 @@
 
 (defn get-poll-interval
   [site-key]
-  (get-in @status-store [site-key :poll-interval])
-  )
+  (get-in @status-store [site-key :poll-interval]))
 
 (defn get-site-timeout
   [site-key]
-  (get-in @status-store [site-key :timeout])
-  )
-
+  (get-in @status-store [site-key :timeout]))
 
 (defn log-message
   [log-file url message]
   (with-open [log-writer (io/writer log-file :append true)]
      (.write log-writer (str (java.util.Date.) " - " url " - " message "\n"))))
- 
-
 
 ;; You can add {:debug true} to the /head call to see what its actually passing
 (defn test-status
@@ -87,6 +81,9 @@
       (log-message log-file url (str "Status [" recorded-status "] to [" actual-status "]")))
     (update-site-status site-key actual-status)))
 
+(defn somefunc-5 [foo]
+  (println "hello " foo))
+
 (defn process-config
   "Loads a config file and registers the sites"
   [config-file]
@@ -94,8 +91,8 @@
         sites (:sites config)]
     (doseq [site sites]
       (let [{:keys [name url poll-interval timeout]} site]
-      (println "Registering Site: " name " - " url)
-      (register-site (keyword name) url poll-interval timeout)))))
+        (println "Registering Site: " name " - " url)
+        (register-site (keyword name) url poll-interval timeout)))))
 
 (defn register-default-site
   "Registers the default to be google"
@@ -111,9 +108,8 @@
       (process-config config-file)
       (register-default-site))))
 
-
 (defn -main
-  "Sets up a polling every 1 second to a url to check the internet status"
+  "Sets up a schedule for each site to poll and wait, based on the config"
   [& args]
   (let [options (:options (parse-opts args cli-options))
         logfile (:logfile options)]
@@ -125,4 +121,3 @@
         (at/interspaced poll-interval #(poll-site site-key logfile) schedule-pool)))
     (while true                                             ;; Just wait
       )))
-
